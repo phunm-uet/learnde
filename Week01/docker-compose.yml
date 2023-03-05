@@ -1,0 +1,40 @@
+services:
+  pgdatabase:
+    container_name: pgdatabase
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=ny_taxi
+    # volumes:
+    #   - "D:/Learn_UET/Learn Data Engineer/DE_Zoomcamp_2023/ny_taxi_postgre_data:/var/lib/postgresql/data:rw"
+    ports:
+      - "5433:5432"
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8081:80"
+  ingestdata_v001:
+    container_name: ingestdata_v001
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: python:3.9
+    environment:
+        - user=admin
+        - password=admin
+        - host=pgdatabase
+        - port=5432
+        - db=ny_taxi
+        - yellow_taxi_table=yellow_taxi_trips
+        - yellow_taxi_data_url="https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2021-01.csv.gz"
+        - green_taxi_table=green_taxi_trips
+        - green_taxi_data_url="https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2019-01.csv.gz"
+        - zones_data_table=zones
+        - zones_data_url="https://s3.amazonaws.com/nyc-tlc/misc/taxi+_zone_lookup.csv"
+        - PYTHONUNBUFFERED=1
+    tty: true
